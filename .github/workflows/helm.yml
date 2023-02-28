@@ -1,6 +1,8 @@
 name: cd-helm
 on:
-  push:
+  workflow_run:
+    workflows: ["cd-terraform"]
+    types: [requested]
     branches:
       - 'main'
 jobs:

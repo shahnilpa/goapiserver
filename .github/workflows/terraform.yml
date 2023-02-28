@@ -1,7 +1,9 @@
 name: cd-terraform
 
 on:
-  push:
+  workflow_run:
+    workflows: ["ci"]
+    types: [requested]
     branches:
       - 'main'
 jobs:
