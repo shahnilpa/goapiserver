@@ -3,7 +3,7 @@ name: cd-terraform
 on:
   workflow_run:
     workflows: ["ci"]
-    types: [requested]
+    types: [completed]
     branches:
       - 'main'
 jobs:
