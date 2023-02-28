@@ -1,0 +1,46 @@
+name: cd-terraform
+
+on:
+  push:
+    branches:
+      - 'main'
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    env:
+      ARM_CLIENT_ID: "5c59cbba-6283-4133-ab2c-835f9fa5e71d"
+      ARM_CLIENT_SECRET: ${{secrets.TF_SP_CLIENT_SECRET}}
+      ARM_SUBSCRIPTION_ID: "6181ea9f-78dc-42e1-ac6e-ef255dd60fe6"
+      ARM_TENANT_ID: "664ecb7f-a698-4198-b39f-4b3a2f76b0a7"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: switch terraform directory
+        run: |
+          cd ./dependencies/terraform
+          ls -l
+        
+      - name: Terraform Init
+        run: |
+          cd ./dependencies/terraform
+          terraform init 
+
+      - name: Terraform Validate
+        run: |
+          cd ./dependencies/terraform
+          terraform validate
+
+      - name: Terraform Plan
+        run: |
+          cd ./dependencies/terraform
+          terraform plan -var-file ./test.tfvars -var "login_admin=${{secrets.POSTGRES_USERNAME}}" -var "login_password=${{secrets.POSTGRES_PASSWORD}}" -var "server_name=gotestserver1" -out planOutput
+
+      - name: Terraform apply
+        run: |
+          cd ./dependencies/terraform
+          terraform apply -input=false planOutput

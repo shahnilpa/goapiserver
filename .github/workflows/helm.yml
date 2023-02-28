@@ -1,0 +1,31 @@
+name: cd-helm
+on:
+  push:
+    branches:
+      - 'main'
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout helm
+        uses: actions/checkout@v1
+        with:
+          name: repository
+      - name: Create kube config
+        run: |
+          mkdir -p $HOME/.kube/
+          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+      - name: Install helm
+        run: |
+          curl -LO https://get.helm.sh/helm-v3.8.0-linux-amd64.tar.gz
+          tar -zxvf helm-v3.8.0-linux-amd64.tar.gz
+          mv linux-amd64/helm /usr/local/bin/helm
+          helm version
+      - name: Lint helm charts
+        run: helm lint ./deployment/gohttpserver/
+      - name: Deploy
+        run: |
+          helm upgrade --install gohttpserver ./deployment/gohttpserver -n gotest \
+            --kube-context go-test-aks-eastus-admin --namespace gotest --create-namespace \
+            --set DB_CONNECTION='postgres://${{ secrets.POSTGRES_USERNAME }}:${{ secrets.POSTGRES_PASSWORD }}@gotestserver.postgres.database.azure.com/postgres?sslmode=require'      
