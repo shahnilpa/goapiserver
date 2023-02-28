@@ -183,11 +183,11 @@ backend "azurerm" {
       ARM_TENANT_ID: "664ecb7f-a698-4198-b39f-4b3a2f76b0a7"
  ```
 - Some more secrets that needs to be present in github action secrets.
-  `DOCKERHUB_USERNAME` - dockerhub username. Used in publishing docker image to github registry.
-  `DOCKERHUB_PASSWORD` - dockerhub password. Used in publishing docker image to github registry.
-  `POSTGRES_USERNAME` - postgresql username. Used in Infrastructure provisioning and  helm deployment.
-  `POSTGRES_PASSWORD` - postgresql password. Used in Infrastructure provisioning and  helm deployment.
-  `KUBE_CONFIG` - KUBE_CONFIG of kubernates cluster where the go api server will be deployed.
+  - `DOCKERHUB_USERNAME` - dockerhub username. Used in publishing docker image to github registry.
+  - `DOCKERHUB_PASSWORD` - dockerhub password. Used in publishing docker image to github registry.
+  - `POSTGRES_USERNAME` - postgresql username. Used in Infrastructure provisioning and  helm deployment.
+  - `POSTGRES_PASSWORD` - postgresql password. Used in Infrastructure provisioning and  helm deployment.
+  - `KUBE_CONFIG` - KUBE_CONFIG of kubernates cluster where the go api server will be deployed.
 
 ### Reason to choose kubernates deployment:
 Kubernates enables deployment, management and scaling of services (specially micro services) much better that help support building resilient and better performing services and application. The solution that needs to be created is a small one to begin with but later on can be expanded into full fledge application or no of micro services. So I believe it is better to start the proof of concept with the platform I ultimately going to choose for the end product.
@@ -203,7 +203,7 @@ Some explanations of what and how I have done things.
 - Deploying go api service using helm in github action cd-helm workflow (/goapiserver/.github/workflows/helm.yml)
 - Running the three workflows in following order CI -> CD-Terraform -> CD-Helm
 
-Some small improvements!
+### Some small improvements!
 - Some improvements in Dockerfile to make it more lightweight
 - Add secret for the DB connection string into kubernates cluster and read from it into ENV variable of container instead of exposing the connection string straight away in the ENV variable
 - At the moment even though terraform provisioning works I have issues logging it in so I have used a manual deployment of the PostgresSql for the connection string.
@@ -212,7 +212,7 @@ Some small improvements!
 - terraform and helm workflows run on completion event of the configured workflow which ideally should run on the successful completion of the configured workflow.
 - Add Semantic versioning in docker, terraform and helm artifact and so on...
 
-And last but not the least from basic CI/CD pipeline to full scale CI/CD pipeline! 
+### And last but not the least, from basic CI/CD pipeline to full scale CI/CD pipeline and infrastructure that is secure and supports continous and faster Infrac provisioning and app deployment! 
 
 
 
