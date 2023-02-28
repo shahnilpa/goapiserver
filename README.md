@@ -159,9 +159,10 @@ We are looking forward to seeing your solution and discussing it with you.
 
 ## Here is what I have achieved so far!
 
-### Prerequisites: Kubernates cluster(AKS) up and running in Azure with http application routing enabled. I chose dev workload cluster and created it using the portal. As I believe the Iac for the cluster itself should run as a separate project and testing cycle and it should not be part of service CI/CD.
+### Prerequisites: 
+Kubernates cluster(AKS) up and running in Azure with http application routing enabled. I chose dev workload cluster and created it using the portal. As I believe the Iac for the cluster itself should run as a separate project and testing cycle and it should not be part of service CI/CD.
 
-## The http application routing enabled option on the AKS cluster works as if you are installing ingress controller with not so ideal domain name. This has saved me time for installing my own ingress controller and given me readymade domain name to access the service
+The http application routing enabled option on the AKS cluster works as if you are installing ingress controller with not so ideal domain name. This has saved me time for installing my own ingress controller and given me readymade domain name to access the service
 
 Some explanations of what and how I have done things.
 
