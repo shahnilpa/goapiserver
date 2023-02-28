@@ -21,11 +21,6 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
-
-      - name: switch terraform directory
-        run: |
-          cd ./dependencies/terraform
-          ls -l
         
       - name: Terraform Init
         run: |

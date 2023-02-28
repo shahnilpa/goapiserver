@@ -157,12 +157,39 @@ This was tested with the following versions:
 We are looking forward to seeing your solution and discussing it with you.
 
 
-## Here is what I have achieved so far!
 
 ### Prerequisites: 
-Kubernates cluster(AKS) up and running in Azure with http application routing enabled. I chose dev workload cluster and created it using the portal. As I believe the Iac for the cluster itself should run as a separate project and testing cycle and it should not be part of service CI/CD.
+- Kubernates cluster(AKS) up and running in Azure with http application routing enabled. I chose dev workload cluster and created it using the portal. As I believe the Iac for the cluster itself should run as a separate project and testing cycle and it should not be part of service CI/CD.
 
 The http application routing enabled option on the AKS cluster works as if you are installing ingress controller with not so ideal domain name. This has saved me time for installing my own ingress controller and given me readymade domain name to access the service
+
+- storage account and with container created inside the resource group with the names described below(/goapiserver/dependencies/terraform/provider.tf) for terraform state management.
+``` 
+backend "azurerm" {
+    resource_group_name  = "go-test-eastus-tf-rg"
+    storage_account_name = "gotesttfstorage"
+    container_name       = "terraformstate"
+    key                  = "terraform.tfstate"
+  }
+  ```
+
+ - Azure service principal created and some of the values stored as ENV variable as done in teraform.yml workflow and SP's client secret is stored as secret in github actions secrets with name 'TF_SP_CLIENT_SECRET'.
+ ```
+  env:
+      ARM_CLIENT_ID: "5c59cbba-6283-4133-ab2c-835f9fa5e71d"
+      ARM_CLIENT_SECRET: ${{secrets.TF_SP_CLIENT_SECRET}}
+      ARM_SUBSCRIPTION_ID: "6181ea9f-78dc-42e1-ac6e-ef255dd60fe6"
+      ARM_TENANT_ID: "664ecb7f-a698-4198-b39f-4b3a2f76b0a7"
+ ```
+- Some more secrets that needs to be present in github action secrets.
+  `DOCKERHUB_USERNAME` - dockerhub username. Used in publishing docker image to github registry.
+  `DOCKERHUB_PASSWORD` - dockerhub password. Used in publishing docker image to github registry.
+  `POSTGRES_USERNAME` - postgresql username. Used in Infrastructure provisioning and  helm deployment.
+  `POSTGRES_PASSWORD` - postgresql password. Used in Infrastructure provisioning and  helm deployment.
+  `KUBE_CONFIG` - KUBE_CONFIG of kubernates cluster where the go api server will be deployed.
+
+### Reason to choose kubernates deployment:
+Kubernates enables deployment, management and scaling of services (specially micro services) much better that help support building resilient and better performing services and application. The solution that needs to be created is a small one to begin with but later on can be expanded into full fledge application or no of micro services. So I believe it is better to start the proof of concept with the platform I ultimately going to choose for the end product.
 
 Some explanations of what and how I have done things.
 
@@ -173,15 +200,13 @@ Some explanations of what and how I have done things.
 - creating helm chart for the go api using helm create (/goapiserver/deployment/gohttpserver)
 - Adding values necessary in values.yaml and modifying the template deployment.yaml for readiness, livelyness probe and env variable to pass DB connection string 
 - Deploying go api service using helm in github action cd-helm workflow (/goapiserver/.github/workflows/helm.yml)
-- Running the three workflows in floowing order CI -> CD-Terraform -> CD-Helm
-
-## Things to improve!
+- Running the three workflows in following order CI -> CD-Terraform -> CD-Helm
 
 Some small improvements!
 - Some improvements in Dockerfile to make it more lightweight
 - Add secret for the DB connection string into kubernates cluster and read from it into ENV variable of container instead of exposing the connection string straight away in the ENV variable
 - At the moment even though terraform provisioning works I have issues logging it in so I have used a manual deployment of the PostgresSql for the connection string.
-- I would like to debug this and later on read the FQDN of the postgreSql server from terarform output variable (Store it somewhwre) and use that as input ENV variable in helm deployment for DB connection string.
+- I would like to debug this and later on read the FQDN of the postgreSql server from terarform output variable (Store it somewhere) and use that as input ENV variable in helm deployment for DB connection string. Also run the sql script in Git hub action to set-up the test data.
 - Make postgresql more secure (It is now open for all internet traffic for testing and debugging). Need to make it only accessible from the public endpoint of the cluster or vnet.
 - terraform and helm workflows run on completion event of the configured workflow which ideally should run on the successful completion of the configured workflow.
 - Add Semantic versioning in docker, terraform and helm artifact and so on...
