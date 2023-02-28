@@ -155,3 +155,40 @@ This was tested with the following versions:
 ## Good luck!
 
 We are looking forward to seeing your solution and discussing it with you.
+
+
+## Here is what I have achieved so far!
+
+### Prerequisites: Kubernates cluster(AKS) up and running in Azure with http application routing enabled. I chose dev workload cluster and created it using the portal. As I believe the Iac for the cluster itself should run as a separate project and testing cycle and it should not be part of service CI/CD.
+
+## The http application routing enabled option on the AKS cluster works as if you are installing ingress controller with not so ideal domain name. This has saved me time for installing my own ingress controller and given me readymade domain name to access the service
+
+Some explanations of what and how I have done things.
+
+- Building and containerizing the go api into a docker image and publishing it to dockerhub
+- Run the above ci process in github action publish workflow (/goapiserver/.github/workflows/publish.yml)
+- creating a terraform(Iac) for postgresql flexible instance (/goapiserver/dependencies/terraform)
+- Provisioning infrastructure using terraform init and remote state management, validate , plan and apply in github action cd-terraform workflow (/goapiserver/.github/workflows/terraform.yml)
+- creating helm chart for the go api using helm create (/goapiserver/deployment/gohttpserver)
+- Adding values necessary in values.yaml and modifying the template deployment.yaml for readiness, livelyness probe and env variable to pass DB connection string 
+- Deploying go api service using helm in github action cd-helm workflow (/goapiserver/.github/workflows/helm.yml)
+- Running the three workflows in floowing order CI -> CD-Terraform -> CD-Helm
+
+## Things to improve!
+
+Some small improvements!
+- Some improvements in Dockerfile to make it more lightweight
+- Add secret for the DB connection string into kubernates cluster and read from it into ENV variable of container instead of exposing the connection string straight away in the ENV variable
+- At the moment even though terraform provisioning works I have issues logging it in so I have used a manual deployment of the PostgresSql for the connection string.
+- I would like to debug this and later on read the FQDN of the postgreSql server from terarform output variable (Store it somewhwre) and use that as input ENV variable in helm deployment for DB connection string.
+- Make postgresql more secure (It is now open for all internet traffic for testing and debugging). Need to make it only accessible from the public endpoint of the cluster or vnet.
+- terraform and helm workflows run on completion event of the configured workflow which ideally should run on the successful completion of the configured workflow.
+- Add Semantic versioning in docker, terraform and helm artifact and so on...
+
+And last but not the least from basic CI/CD pipeline to full scale CI/CD pipeline! 
+
+
+
+
+
+
